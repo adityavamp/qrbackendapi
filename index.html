@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <form id="qrForm">
+        <label for="url">Link:</label>
+        <input type="text" id="url" name="url" required>
+        <br>
+        <label for="expirationDate">Expiration Date:</label>
+        <input type="datetime-local" id="expirationDate" name="expirationDate" required>
+        <br>
+        <button type="button" onclick="generateQRCode()">Generate QR Code</button>
+    </form>
+    <div id="qrCodeContainer"></div>
+
+    <script>
+        async function generateQRCode() {
+            const url = document.getElementById('url').value;
+            const expirationDate = document.getElementById('expirationDate').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:3000/storeLink', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url, expirationDate }),
+                });
+
+                const result = await response.json();
+                const qrCodeContainer = document.getElementById('qrCodeContainer');
+
+                // Clear previous QR code
+                qrCodeContainer.innerHTML = '';
+
+                // Display the new QR code
+                const qrCodeImage = document.createElement('img');
+                qrCodeImage.src = result.qrCode;
+                qrCodeContainer.appendChild(qrCodeImage);
+            } catch (error) {
+                console.error('Error generating QR code:', error.message);
+            }
+        }
+    </script>
+</body>
+</html>
