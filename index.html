@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
+
     <h1>QR Code Generator</h1>
     <form id="qrForm">
         <label for="url">Link:</label>
         <input type="text" id="url" name="url" required>
         <br>
-        <label for="expirationDate">Expiration Date:</label>
-        <input type="datetime-local" id="expirationDate" name="expirationDate" required>
-        <br>
-        <button type="button" onclick="generateQRCode()">Generate QR Code</button>
+
+        <button type="button" class="button1" onclick="generateQRCode()">Generate QR Code</button>
     </form>
     <div id="qrCodeContainer"></div>
 
     <script>
         async function generateQRCode() {
             const url = document.getElementById('url').value;
-            const expirationDate = document.getElementById('expirationDate').value;
+            const currentDate = new Date();
+            currentDate.setSeconds(currentDate.getSeconds() + 10);
+            const expirationDate = currentDate.toISOString();
 
             try {
                 const response = await fetch('http://127.0.0.1:3000/storeLink', {
@@ -46,6 +50,20 @@
                 console.error('Error generating QR code:', error.message);
             }
         }
+        document.addEventListener('DOMContentLoaded', function () {
+            setInterval(function () {
+                generateQRCode();
+            }, 10000); // Adjust the interval time in milliseconds as needed
+
+            // Event listener for the button with class 'button1'
+            const button1 = document.querySelector('.button1');
+            if (button1) {
+                button1.addEventListener('click', function () {
+                    generateQRCode();
+                });
+            }
+        })
     </script>
 </body>
+
 </html>
