@@ -22,6 +22,7 @@ app.use(bodyParser.json());
 
 app.post('/storeLink', async (req, res) => {
   const { url, expirationDate } = req.body;
+  
 
   const newLink = new Link({
     url,
@@ -29,19 +30,42 @@ app.post('/storeLink', async (req, res) => {
   });
 
   try {
-    await newLink.save();
+    const savedata=await newLink.save();
 
-    const qrCode = await QRCode.toDataURL(url);
+    const qrCode = await QRCode.toDataURL(`http://127.0.0.1:3000/comeon/${savedata._id}`);
     res.json({ qrCode });
-    console.log("saved");
+    console.log("saved"+" "+savedata._id);
   } catch (error) {
     console.error('Error storing link:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.get('/redirect/:id', async (req, res) => {
-  // ... (unchanged code)
+app.get('/comeon/:id', async (req, res) => {
+  const objectId = req.params.id;
+  const currentDate = new Date();
+  console.log(objectId)
+  try {
+    // Find the document by ObjectID
+    const foundData = await Link.findById(objectId);
+
+    if (!foundData) {
+      res.status(404).json({ message: 'Data not found' });
+      return;
+    }
+    if(currentDate>foundData.expirationDate)
+    {
+      res.status(300).json({message:'qr code has been expired'});
+    }
+
+    // res.status(200).json({ message: 'Data retrieved successfully', data: foundData });
+    res.redirect(foundData.url);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+  
+  console.log("get function called");
 });
 
 app.listen(PORT, () => {
