@@ -21,7 +21,7 @@ app.use(cors()); // Enable CORS for all routes
 app.use(bodyParser.json());
 
 app.post('/storeLink', async (req, res) => {
-  const { url, expirationDate } = req.body;
+  const { url, expirationDate,qrapi } = req.body;
   
 
   const newLink = new Link({
@@ -32,7 +32,7 @@ app.post('/storeLink', async (req, res) => {
   try {
     const savedata=await newLink.save();
 
-    const qrCode = await QRCode.toDataURL(`http://127.0.0.1:3000/comeon/${savedata._id}`);
+    const qrCode = await QRCode.toDataURL(`${qrapi}/comeon/${savedata._id}`);
     res.json({ qrCode });
     console.log("saved"+" "+savedata._id);
   } catch (error) {
